@@ -16,12 +16,17 @@ const tx1 = new Transaction(myWalletAddress, "address2", 10);
 tx1.signTransaction(myKey);
 holymolyCoin.addTransaction(tx1);
 
+//mine block
+
+holymolyCoin.minePendingTransactions(myWalletAddress);
+
 // Create second transaction & add it
 const tx2 = new Transaction(myWalletAddress, "address1", 50);
 tx2.signTransaction(myKey);
 holymolyCoin.addTransaction(tx2);
 
-console.log("\n Starting the miner...");
+//mine block
+
 holymolyCoin.minePendingTransactions(myWalletAddress);
 
 console.log(

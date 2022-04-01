@@ -74,7 +74,7 @@ class Block {
     console.log("BLOCK MINED: " + this.hash);
   }
 
-  verifyTransactionsInBlock() {
+  hasValidTransactions() {
     for (const tx of this.transactions) {
       if (!tx.isValid()) {
         return false;
@@ -123,6 +123,11 @@ class Blockchain {
   }
 
   addTransaction(transaction) {
+    // Prevent people from adding a fake mining reward transaction
+    if (!transaction.fromAddress || !transaction.toAddress) {
+      throw new Error("Transaction must include from and to address");
+    }
+
     // Verify the transactiion
     if (!transaction.isValid()) {
       throw new Error("Cannot add invalid transaction to chain");
@@ -150,12 +155,22 @@ class Blockchain {
   }
 
   isChainValid() {
+    // Check if the Genesis block hasn't been tampered with by comparing
+    // the output of createGenesisBlock with the first block on our chain
+    const realGenesis = JSON.stringify(this.createGenesisBlock());
+
+    if (realGenesis !== JSON.stringify(this.chain[0])) {
+      return false;
+    }
+
+    // Check the remaining blocks on the chain to see if there hashes and
+    // signatures are correct
     for (let i = 1; i < this.chain.length; i++) {
       const currentBlock = this.chain[i];
       const previousBlock = this.chain[i - 1];
 
       // Verify the transaction inside this block
-      if (!currentBlock.verifyTransactionsInBlock()) {
+      if (!currentBlock.hasValidTransactions()) {
         return false;
       }
 
